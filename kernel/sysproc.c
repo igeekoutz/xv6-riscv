@@ -124,3 +124,8 @@ sys_setpriority(void)
   p->priority = n;
   return 0;
 }
+uint64
+sys_getticks(void)
+{
+  return ticks;
+}

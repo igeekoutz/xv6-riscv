@@ -5,4 +5,6 @@ struct pstat {
   int ppid;        // Parent process ID
   char name[16];   // Parent command name
   int priority;       // Process priority
+  uint64 readytime;  // Time when the process's state changed to RUNNABLE
+
 };

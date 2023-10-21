@@ -21,12 +21,20 @@ main(int argc, char **argv)
   if (nprocs < 0)
     exit(-1);
 
-  printf("pid\tstate\t\tsize\tppid\tname\tpriority\n");
+  printf("pid\tstate\t\tsize\tppid\tname\tpriority\tage\n");
+  int current_ticks = getticks();
+
+
   for (i=0; i<nprocs; i++) {
     state = states[uproc[i].state];
-    printf("%d\t%s\t%l\t%d\t%s\t%d\n", uproc[i].pid, state, uproc[i].size, uproc[i].ppid, uproc[i].name, uproc[i].priority);
+    if (uproc[i].state == RUNNABLE) {
+        int age = current_ticks - uproc[i].readytime;
 
-  }
+        printf("%d\t%s\t%l\t%d\t%s\t%d\t%d\n", uproc[i].pid, state, uproc[i].size, uproc[i].ppid, uproc[i].name, uproc[i].priority, age);
+    } else {
+        printf("%d\t%s\t%l\t%d\t%s\t%d\n", uproc[i].pid, state, uproc[i].size, uproc[i].ppid, uproc[i].name, uproc[i].priority);
+    }
+}
 
   exit(0);
 }

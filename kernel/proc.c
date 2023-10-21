@@ -244,6 +244,8 @@ userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
+  p->readytime = ticks;  // Assuming 'ticks' is the current time in xv6
+
 
   release(&p->lock);
 }
@@ -314,6 +316,8 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
+  p->readytime = ticks;  // Assuming 'ticks' is the current time in xv6
+
   release(&np->lock);
 
   return pid;
@@ -499,6 +503,8 @@ yield(void)
   struct proc *p = myproc();
   acquire(&p->lock);
   p->state = RUNNABLE;
+  p->readytime = ticks;  // Assuming 'ticks' is the current time in xv6
+
   sched();
   release(&p->lock);
 }
@@ -567,6 +573,8 @@ wakeup(void *chan)
       acquire(&p->lock);
       if(p->state == SLEEPING && p->chan == chan) {
         p->state = RUNNABLE;
+        p->readytime = ticks;  // Assuming 'ticks' is the current time in xv6
+
       }
       release(&p->lock);
     }
@@ -588,6 +596,8 @@ kill(int pid)
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
+        p->readytime = ticks;  // Assuming 'ticks' is the current time in xv6
+
       }
       release(&p->lock);
       return 0;
