@@ -442,32 +442,37 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
-  struct proc *p;
-  struct cpu *c = mycpu();
-  
-  c->proc = 0;
-  for(;;){
-    // Avoid deadlock by ensuring that devices can interrupt.
-    intr_on();
+    struct proc *p;
+    struct proc *highest_priority_proc = 0;
 
-    for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
+    for(;;){
+        // Loop over process table looking for process to run.
+        sti();
 
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-      }
-      release(&p->lock);
+        // Priority-based scheduler
+        for(p = proc; p < &proc[NPROC]; p++){
+            if(p->state != RUNNABLE)
+                continue;
+            if(!highest_priority_proc || p->priority > highest_priority_proc->priority)
+                highest_priority_proc = p;
+        }
+        if(highest_priority_proc){
+            p = highest_priority_proc;
+            if(p->state != RUNNABLE)
+                continue;
+            p->state = RUNNING;
+            swtch(&(proc->context), p->context);  // Adjusted this line
+            p->state = RUNNABLE;
+        }
+
+        // Move to the next process in the table.
+        p = p + 1;
+        if(p >= &proc[NPROC])
+            p = proc;
     }
-  }
 }
+
+
 
 // Switch to scheduler.  Must hold only p->lock
 // and have changed proc->state. Saves and restores
